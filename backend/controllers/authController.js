@@ -48,12 +48,30 @@ export const login = async (req, res) => {
         process.env.JWT_SECRET_KEY,
         { expiresIn: "1d" }
       );
-      res.cookie("token", token), { http: true };
-      return res.json({
-        success: true,
-        message: "Admin Login Successdully",
-        user: { email: process.env.ADMIN_EMAIL, role: "admin" },
-      });
+      if (
+        email === process.env.ADMIN_EMAIL &&
+        password === process.env.ADMIN_PASSWORD
+      ) {
+        const token = jwt.sign(
+          { email: process.env.ADMIN_EMAIL, role: "admin" }, // Added role to token
+          process.env.JWT_SECRET_KEY,
+          { expiresIn: "1d" }
+        );
+        // Send only ONE response
+        return res
+          .cookie("token", token, {
+            httpOnly: true,
+            maxAge: 3600000,
+            secure: true,
+            sameSite: "none",
+            domain: "onrender.com",
+          })
+          .json({
+            success: true,
+            message: "Admin Login Successful",
+            user: { email: process.env.ADMIN_EMAIL, role: "admin" }, // The user object is now included
+          });
+      }
     }
     //user login
     const user = await User.findOne({ email });
@@ -68,18 +86,22 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1d",
     });
+    // ...
+
+    // Correct way to set the cookie with all options
     res.cookie("token", token, {
-    httpOnly: true,
-    maxAge: 3600000, // 1 hour
-    secure: true, // IMPORTANT: Cookie will only be sent over HTTPS
-    sameSite: "none", // IMPORTANT: Allows the cookie to be sent cross-domain
-    domain: "onrender.com" // IMPORTANT: Sets the parent domain
-}).json({ success: true, message: "Logged in successfully" });
+      httpOnly: true,
+      maxAge: 3600000,
+      secure: true,
+      sameSite: "none",
+      domain: "onrender.com",
+    });
     return res.json({
       success: true,
-      message: "User Added Successfully",
+      message: "User Logged In Successfully",
       user,
     });
+    //...
   } catch (error) {
     return res.json({ success: false, message: "Internal Server Error" });
   }
@@ -113,3 +135,4 @@ export const getCurrentUser = async (req, res) => {
     res.status(401).json({ success: false, message: "Invalid token" });
   }
 };
+
