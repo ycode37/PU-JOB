@@ -8,6 +8,7 @@ import { applicants } from "../assets/assets";
 import axios from "axios";
 axios.defaults.withCredentials = true;
 export const AppContext = createContext();
+axios.defaults.withCredentials = true;
 
 const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
@@ -35,7 +36,9 @@ const AppContextProvider = ({ children }) => {
   useEffect(() => {
     const fetchLoggedInUser = async () => {
       try {
-        const { data } = await axios.get(`${import.meta.env.VITE_MY_URL}/user/me`);
+        const { data } = await axios.get(
+          `${import.meta.env.VITE_MY_URL}/user/me`
+        );
         if (data.success) {
           setuser(data.user);
         }
@@ -44,7 +47,7 @@ const AppContextProvider = ({ children }) => {
       }
     };
     fetchLoggedInUser();
-  });
+  }, []);
 
   useEffect(() => {
     fetchCategories();
