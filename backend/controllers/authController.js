@@ -68,7 +68,13 @@ export const login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY, {
       expiresIn: "1d",
     });
-    res.cookie("token", token), { http: true };
+    res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 3600000, // 1 hour
+    secure: true, // IMPORTANT: Cookie will only be sent over HTTPS
+    sameSite: "none", // IMPORTANT: Allows the cookie to be sent cross-domain
+    domain: "onrender.com" // IMPORTANT: Sets the parent domain
+}).json({ success: true, message: "Logged in successfully" });
     return res.json({
       success: true,
       message: "User Added Successfully",
