@@ -10,7 +10,7 @@ dotenv.config();
 
 const app = express();
 
-const allowedOriginals = ["http://localhost:5173"];
+const allowedOriginals = ["https://pu-job-frontend.onrender.com"];
 
 // MiddleWare
 app.use(express.json());
